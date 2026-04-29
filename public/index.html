@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KendraGPT 😎</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    background: #1e293b;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#chat {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    max-width: 70%;
+    margin: 10px 0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    line-height: 1.4;
+}
+
+.user {
+    background: #2563eb;
+    align-self: flex-end;
+}
+
+.bot {
+    background: #334155;
+    align-self: flex-start;
+}
+
+#inputArea {
+    display: flex;
+    padding: 10px;
+    background: #1e293b;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #22c55e;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>KendraGPT 😎</header>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+    <input id="userInput" placeholder="Type something..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+const chatDiv = document.getElementById("chat");
+
+function addMessage(text, sender) {
+    const msg = document.createElement("div");
+    msg.classList.add("message", sender);
+    msg.innerText = text;
+    chatDiv.appendChild(msg);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    addMessage(userText, "user");
+    input.value = "";
+
+    const typing = document.createElement("div");
+    typing.classList.add("message", "bot");
+    typing.innerText = "typing...";
+    chatDiv.appendChild(typing);
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: userText })
+        });
+
+        const data = await response.json();
+        chatDiv.removeChild(typing);
+
+        addMessage(data.reply || "No reply 🤔", "bot");
+
+    } catch (error) {
+        chatDiv.removeChild(typing);
+        addMessage("Error connecting 😢", "bot");
+    }
+}
+
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+addMessage("Hey I’m KendraGPT 😎 what’s up?", "bot");
+</script>
+
+</body>
+</html>
