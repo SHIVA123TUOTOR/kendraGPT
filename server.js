@@ -4,10 +4,8 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// Use environment variable for API key
 const API_KEY = process.env.API_KEY;
 
-// Chat endpoint
 app.post("/chat", async (req, res) => {
     const userText = req.body.message;
 
@@ -23,11 +21,11 @@ app.post("/chat", async (req, res) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "llama3-70b-8192",
+                model: "llama3-8b-8192", // safer model
                 messages: [
                     {
                         role: "system",
-                        content: "You are KendraGPT, a chill teenage boy. Talk like a real friend, casual, funny, short replies, sometimes use slang like bro, lol, wait."
+                        content: "You are KendraGPT, a chill teenage boy. Talk casually, funny, short replies like a real friend."
                     },
                     {
                         role: "user",
@@ -39,19 +37,25 @@ app.post("/chat", async (req, res) => {
 
         const data = await response.json();
 
-        const reply =
-            data?.choices?.[0]?.message?.content ||
-            "No response bro 🤔";
+        // 🔍 Debug output
+        console.log("Groq response:", data);
 
+        // ❗ Handle errors properly
+        if (!data.choices) {
+            return res.json({
+                reply: "Groq error: " + JSON.stringify(data)
+            });
+        }
+
+        const reply = data.choices[0].message.content;
         res.json({ reply });
 
     } catch (err) {
-        console.error("Error:", err);
-        res.json({ reply: "Error connecting bro 😢" });
+        console.error("Server error:", err);
+        res.json({ reply: "Server error 😢" });
     }
 });
 
-// IMPORTANT: Use Render's dynamic port
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
