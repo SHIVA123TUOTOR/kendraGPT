@@ -6,6 +6,7 @@ app.use(express.static("public"));
 
 const API_KEY = process.env.API_KEY;
 
+// Chat endpoint
 app.post("/chat", async (req, res) => {
     const userText = req.body.message;
 
@@ -21,11 +22,11 @@ app.post("/chat", async (req, res) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "llama3-8b-8192", // safer model
+                model: "llama3-8b-8192",
                 messages: [
                     {
                         role: "system",
-                        content: "You are KendraGPT, a chill teenage boy. Talk casually, funny, short replies like a real friend."
+                        content: "You are KendraGPT, a chill teenage boy. Talk casual, funny, short replies."
                     },
                     {
                         role: "user",
@@ -37,27 +38,22 @@ app.post("/chat", async (req, res) => {
 
         const data = await response.json();
 
-        // 🔍 Debug output
-        console.log("Groq response:", data);
-
-        // ❗ Handle errors properly
         if (!data.choices) {
-            return res.json({
-                reply: "Groq error: " + JSON.stringify(data)
-            });
+            console.log("Groq error:", data);
+            return res.json({ reply: "Error: " + JSON.stringify(data) });
         }
 
-        const reply = data.choices[0].message.content;
-        res.json({ reply });
+        res.json({ reply: data.choices[0].message.content });
 
     } catch (err) {
-        console.error("Server error:", err);
+        console.error(err);
         res.json({ reply: "Server error 😢" });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+// 🔥 CRITICAL FIX
+const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log("Server running on port " + PORT);
 });
