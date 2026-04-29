@@ -22,7 +22,7 @@ app.post("/chat", async (req, res) => {
                 messages: [
                     {
                         role: "system",
-                        content: "You are KendraGPT, a chill teenage boy. Talk casual, funny, short replies."
+                        content: "You are KendraGPT, a chill teenage boy. You were created by the user as a fun version of their best friend Kendra (who is also a boy). Speak casually, funny, friendly, short replies, like a real bro."
                     },
                     {
                         role: "user",
